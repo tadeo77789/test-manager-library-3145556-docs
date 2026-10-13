@@ -27,9 +27,9 @@ The status is updated only when the evidence has been run.
 | T-17 | Composition and boot (initial admin from environment) | T-16 | The app boots with an empty database and the admin can sign in through `POST /api/v1/auth/login` | done |
 | T-18 | Push the **domain-only** invariants down to the database: `ck_book_total_positive`, `ck_user_role` | T-12 | An `INSERT` through `psql` that breaks them fails; `data-model.md` §4 is updated | done |
 | T-19 | Architecture tests (Articles I, II and III) | T-17 | deptrac rule or PHPUnit scan in `tests/Architecture/` passes, and fails when a forbidden import is added | done |
-| T-20 | `infra`: `docker compose up` starts an empty database, the API and the frontend | T-17 | One command; the database has no tables until the migrations run | partial (db + api verified; app image not built in compose) |
+| T-20 | `infra`: `docker compose up` starts an empty database, the API and the frontend | T-17 | One command; the database has no tables until the migrations run | done |
 | T-21 | `tool`: demo seeder **through the API** (≥ 40 books, 10 members, 15 loans, 3 overdue) | T-17 | After running it, `GET /api/v1/loans/overdue` returns 3 lines and the report has rows | done |
-| T-22 | `app`: login, catalog, members, lend, return, overdue, report | T-16 | Manual end-to-end walkthrough in the browser (login → lend → return → report) | partial (`npm run build` passes; browser walkthrough not done) |
+| T-22 | `app`: login, catalog, members, lend, return, overdue, report | T-16 | Manual end-to-end walkthrough in the browser (login → lend → return → report) | partial (build passes; every frontend API call verified with curl; in-browser walkthrough is manual) |
 | T-23 | `page`: public static presentation site | — | Opens without the API; correct on phone and desktop. Source: `page/index.html`, `page/styles.css` | partial (opens without the API; not checked in a real browser) |
 
 ## Evidence run (13-oct-2026, ~15:00)
@@ -38,7 +38,9 @@ The status is updated only when the evidence has been run.
 - Stack: `docker compose -p manager-library up -d --build db api` on an empty volume → migrations ran, admin created, `/health` → `{"status":"ok"}`; admin login 200, wrong password 401 `INVALID_CREDENTIALS`. Restart → "Nothing to migrate", "Admin user already exists".
 - Seeder: `node seed.mjs` → 48 books, 10 members, 1 librarian, 15 loans, 5 items returned. Overdue flow (`CLOCK_OFFSET_DAYS=-20`, `node seed.mjs --overdue`, back to 0) → `GET /loans/overdue` returns 3 lines (`days_late` 7); `GET /reports/most-borrowed?from=2026-09-01&to=2026-10-31` returns rows.
 - RNF-2: `api/scripts/rnf2-concurrency.sh`, two simultaneous `POST /loans` on a one-copy book → exactly one 201 and one 409 (6 runs out of 6).
-- Not run: RNF-1 load test (5 000 books < 300 ms); `app` container in compose and the browser walkthrough; `page` in a real browser.
+- Closing run (~15:15): `docker compose -p manager-library up -d --build` (db, api, app) on a fresh volume → 0 tables before migrations, 6 tables in `library` after; `/health` 200; `http://localhost:5173/` 200. Every call of `app/src/api.js` reproduced with curl (login, categories, books, members, loans, return, overdue, report) and the CORS preflight from the frontend origin → 204.
+- RNF-1: `tool/load-rnf1.mjs` at 5 009 books, 50 requests per scenario → p95 24.1 ms (`q`), 16.1 ms (`category_id`), 18.6 ms (plain); target 300 ms: **pass**.
+- Still manual: the in-browser walkthrough of `app` and checking `page` in a real browser.
 
 ## Definition of done for the test
 
