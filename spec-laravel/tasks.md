@@ -29,8 +29,8 @@ The status is updated only when the evidence has been run.
 | T-19 | Architecture tests (Articles I, II and III) | T-17 | deptrac rule or PHPUnit scan in `tests/Architecture/` passes, and fails when a forbidden import is added | done |
 | T-20 | `infra`: `docker compose up` starts an empty database, the API and the frontend | T-17 | One command; the database has no tables until the migrations run | done |
 | T-21 | `tool`: demo seeder **through the API** (≥ 40 books, 10 members, 15 loans, 3 overdue) | T-17 | After running it, `GET /api/v1/loans/overdue` returns 3 lines and the report has rows | done |
-| T-22 | `app`: login, catalog, members, lend, return, overdue, report | T-16 | Manual end-to-end walkthrough in the browser (login → lend → return → report) | partial (build passes; every frontend API call verified with curl; in-browser walkthrough is manual) |
-| T-23 | `page`: public static presentation site | — | Opens without the API; correct on phone and desktop. Source: `page/index.html`, `page/styles.css` | partial (opens without the API; not checked in a real browser) |
+| T-22 | `app`: login, catalog, members, lend, return, overdue, report | T-16 | Manual end-to-end walkthrough in the browser (login → lend → return → report) | done |
+| T-23 | `page`: public static presentation site | — | Opens without the API; correct on phone and desktop. Source: `page/index.html`, `page/styles.css` | done |
 
 ## Evidence run (13-oct-2026, ~15:00)
 
@@ -40,7 +40,7 @@ The status is updated only when the evidence has been run.
 - RNF-2: `api/scripts/rnf2-concurrency.sh`, two simultaneous `POST /loans` on a one-copy book → exactly one 201 and one 409 (6 runs out of 6).
 - Closing run (~15:15): `docker compose -p manager-library up -d --build` (db, api, app) on a fresh volume → 0 tables before migrations, 6 tables in `library` after; `/health` 200; `http://localhost:5173/` 200. Every call of `app/src/api.js` reproduced with curl (login, categories, books, members, loans, return, overdue, report) and the CORS preflight from the frontend origin → 204.
 - RNF-1: `tool/load-rnf1.mjs` at 5 009 books, 50 requests per scenario → p95 24.1 ms (`q`), 16.1 ms (`category_id`), 18.6 ms (plain); target 300 ms: **pass**.
-- Still manual: the in-browser walkthrough of `app` and checking `page` in a real browser.
+- Browser (Chrome, ~15:30): full `app` walkthrough login → lend → return → overdue → report, plus CA-01.2, CA-06.5 and CA-10.2 error messages (details in the `app` README). `page` checked on desktop and at 390 px without horizontal overflow (details in the `page` README).
 
 ## Definition of done for the test
 
