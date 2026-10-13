@@ -44,6 +44,7 @@ No hay prórroga: suban avances parciales con commits pequeños durante la prueb
 |---|---|
 | [`spec-python/`](spec-python/) | El spec de Manager Library escrito para un backend Python |
 | [`spec-.net/`](spec-.net/) | El mismo sistema especificado para un backend .NET |
+| [`spec-laravel/`](spec-laravel/) | Translation of the spec to PHP (Laravel) and React: constitution, plan, architecture, tasks and translation notes |
 
 Las dos versiones describen el **mismo producto** (las mismas historias, reglas de negocio y
 endpoints); cambian las decisiones de tecnología. Ninguna de las dos es el stack del reto.
